@@ -1,4 +1,4 @@
-function vertex({ id, name, x, y, isTerminal = false }) {
+export function vertex({ id, name, x, y, isTerminal = false }) {
   return {
     id,
     name,
