@@ -1,20 +1,25 @@
-function MapControls() {
-    return (
-        <div className="flex pointer-events-auto space-y-4">
-            <section className="max-w-xs m-4 rounded-2xl bg-slate-950/75 p-4 shadow-lg">
+function MapControls({ onZoomIn, onZoomOut, zoom }) {
+  return (
+    <div className="absolute right-4 top-4 flex flex-col w-fit space-y-2 text-xs text-slate-300">
+      <button
+        className="px-3 py-2 rounded-lg text-center bg-slate-800/80 hover:bg-slate-800 shadow-lg"
+        onClick={() => onZoomIn && onZoomIn()}
+      >
+        +
+      </button>
+      <button
+        className="px-3 py-2 rounded-lg text-center bg-slate-800/80 hover:bg-slate-800 shadow-lg"
+        onClick={() => onZoomOut && onZoomOut()}
+      >
+        -
+      </button>
 
-                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-300">
-                    Map Controls
-                </h2>
-
-                <div className="space-y-2 text-xs text-slate-300">
-                    <button className="w-full rounded-lg bg-slate-800 px-3 py-2 text-left hover:bg-slate-700">
-                        Zoom / Layer controls
-                    </button>
-                </div>
-            </section>
-        </div>
-    );
+      {/* Optional: show current zoom for debugging */}
+      <div className="px-2 py-1 rounded-lg bg-slate-900/70 text-center">
+        {zoom.toFixed(2)}x
+      </div>
+    </div>
+  );
 }
 
 export default MapControls;

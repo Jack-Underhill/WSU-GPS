@@ -1,16 +1,15 @@
 import { useState } from 'react';
+import { worldToScreen } from '../helper/coordinates.js';
 
-export default function EdgeLine({ edge, vertices }) {
+export default function EdgeLine({ edge, vertices, viewportSize, camera }) {
   const [hovered, setHovered] = useState(false);
 
   const u = vertices[edge.u];
   const v = vertices[edge.v];
-
-  // Safety: skip if graph is miswired
   if (!u || !v) return null;
 
-  const { x: x1, y: y1 } = u.position;
-  const { x: x2, y: y2 } = v.position;
+  const { x: x1, y: y1 } = worldToScreen(u.position, viewportSize, camera);
+  const { x: x2, y: y2 } = worldToScreen(v.position, viewportSize, camera);
 
   return (
     <line

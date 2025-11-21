@@ -1,6 +1,6 @@
-export default function VertexNode({ vertex }) {
-  const { id, name, position } = vertex;
-  const { x, y } = position;
+export default function VertexNode({ vertex, screenPosition }) {
+  const { name } = vertex;
+  const { x, y } = screenPosition;
 
   return (
     <div
@@ -21,9 +21,6 @@ export default function VertexNode({ vertex }) {
         top: y
       }}
       title={name}
-      onClick={() => {
-        console.log('Vertex clicked:', { id, name, position });
-      }}
     />
   );
 }
