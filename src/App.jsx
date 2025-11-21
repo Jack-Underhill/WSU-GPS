@@ -6,9 +6,15 @@ function App() {
   return (
     <div className="min-h-screen text-white">
       
-      <header className="z-10 flex bg-slate-950/80 px-4 py-3 backdrop-blur">
+      <header className="z-10 flex gap-3 items-center bg-slate-950/80 px-4 py-3 backdrop-blur">
         <h1 className="text-base font-semibold md:text-lg">
           WSU GPS
+        </h1>
+        <h1 className="text-xs font-semibold md:text-lg">
+          |
+        </h1>
+        <h1 className="text-xs font-semibold md:text-md">
+          In progress...
         </h1>
       </header>
 

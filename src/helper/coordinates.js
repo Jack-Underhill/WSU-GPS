@@ -53,3 +53,27 @@ export function worldToScreen(position, viewportSize, camera) {
     y: relY * vpH,
   };
 }
+
+/**
+ * Inverse of worldToScreen:
+ * Convert a screen-space position (relative to the map viewport) into
+ * world-space coordinates, given viewport size and camera.
+ */
+export function screenToWorld(screenPos, viewportSize, camera) {
+  const { x: sx, y: sy } = screenPos;
+  const { width: vpW, height: vpH } = viewportSize;
+
+  if (!vpW || !vpH) {
+    return { x: 0, y: 0 };
+  }
+
+  const { x: viewX, y: viewY, width: viewW, height: viewH } = getViewRect(camera);
+
+  const relX = sx / vpW; // 0..1 across viewport
+  const relY = sy / vpH; // 0..1 down viewport
+
+  const worldX = viewX + relX * viewW;
+  const worldY = viewY + relY * viewH;
+
+  return { x: worldX, y: worldY };
+}
