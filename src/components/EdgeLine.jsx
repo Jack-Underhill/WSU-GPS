@@ -1,9 +1,6 @@
-import { useState } from 'react';
 import { worldToScreen } from '../helper/coordinates.js';
 
-export default function EdgeLine({ edge, vertices, viewportSize, camera }) {
-  const [hovered, setHovered] = useState(false);
-
+export default function EdgeLine({ edge, vertices, viewportSize, camera, isHighlighted = false }) {
   const u = vertices[edge.u];
   const v = vertices[edge.v];
   if (!u || !v) return null;
@@ -17,10 +14,8 @@ export default function EdgeLine({ edge, vertices, viewportSize, camera }) {
       y1={y1}
       x2={x2}
       y2={y2}
-      stroke={hovered ? '#facc15' : 'rgba(59,130,246,0.8)'} // yellow-400 vs blue-500
-      strokeWidth={hovered ? 4 : 2}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      stroke={isHighlighted ? 'rgba(59,130,246,0.8)' : 'rgba(59,130,246,0.4)'}
+      strokeWidth={isHighlighted ? 4 : 2}
     />
   );
 }

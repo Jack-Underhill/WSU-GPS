@@ -9,7 +9,10 @@ import MapControls from './MapControls.jsx';
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 4;
 
-const ENABLE_GRAPH_EDIT = true;
+// Edit mode only in dev builds
+const IS_EDITABLE = false;
+const IS_DEV_MODE = import.meta.env.DEV;
+const ENABLE_GRAPH_EDIT = IS_EDITABLE && IS_DEV_MODE;
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -31,10 +34,18 @@ function CampusMap() {
   // Panning state
   const [isPanning, setIsPanning] = useState(false);
   const lastMousePosRef = useRef({ x: 0, y: 0 });
-  const movedRef = useRef(false); // track if we actually dragged
-  
+  const movedRef = useRef(false); // track if actually dragged
+
+  // For template vertex IDs
   const templateIdRef = useRef(1);
+  // For template edge IDs
+  const edgeIdRef = useRef(1);
+
+  // Force rerender when mutate graph in-place
   const [graphVersion, setGraphVersion] = useState(0);
+
+  // Edge-creation selection state: first vertex clicked for an edge
+  const [selectedVertexId, setSelectedVertexId] = useState(null);
 
   // Derived camera object for worldToScreen()
   const camera = {
@@ -43,7 +54,116 @@ function CampusMap() {
     centerY: center.y,
   };
 
-  /* Measure the rendered map container so we know the viewport size */
+  /* Dump all TEMPLATE vertices + edges as code on Enter,
+     and undo last TEMPLATE vertex on "u" */
+  useEffect(() => {
+    if (!ENABLE_GRAPH_EDIT) return;
+
+    const handleKeyDown = (e) => {
+      // ENTER → dump all TEMPLATE vertices + edges as code
+      if (e.key === 'Enter') {
+        const vertices = Object.values(graph.vertices);
+        const edges = Object.values(graph.edges);
+
+        const templateVertices = vertices.filter(
+          (v) => v.name === 'TEMPLATE' || String(v.id).startsWith('TEMPLATE')
+        );
+
+        const templateEdges = edges.filter((edge) =>
+          String(edge.id).startsWith('TEMPLATE_E')
+        );
+
+        if (templateVertices.length === 0 && templateEdges.length === 0) {
+          console.log('// No TEMPLATE vertices or edges to dump');
+          return;
+        }
+
+        const vertexLines = templateVertices.map(
+          (v) =>
+            `g.addVertex({ id: '${v.id}', name: 'TEMPLATE', x: ${v.position.x}, y: ${v.position.y}, isTerminal: ${v.isTerminal} });`
+        );
+
+        const edgeLines = templateEdges.map(
+          (edge) =>
+            `g.addEdge({ id: '${edge.id}', u: '${edge.u}', v: '${edge.v}', weight: ${edge.weight} });`
+        );
+
+        let output = '\n// TEMPLATE VERTICES\n';
+        if (vertexLines.length > 0) {
+          output += vertexLines.join('\n');
+        } else {
+          output += '// (none)';
+        }
+
+        output += '\n\n// TEMPLATE EDGES\n';
+        if (edgeLines.length > 0) {
+          output += edgeLines.join('\n');
+        } else {
+          output += '// (none)';
+        }
+
+        console.log(output);
+        return;
+      }
+
+      // "u" → undo last TEMPLATE vertex (and its edges)
+      if (e.key === 'u' || e.key === 'U') {
+        const vertices = Object.values(graph.vertices);
+
+        const templateVertices = vertices.filter(
+          (v) => v.name === 'TEMPLATE' || String(v.id).startsWith('TEMPLATE')
+        );
+
+        if (templateVertices.length === 0) {
+          console.log('// No TEMPLATE vertex to undo');
+          return;
+        }
+
+        // Find the TEMPLATE_* vertex with the highest numeric suffix
+        let lastVertex = null;
+        let lastNum = -Infinity;
+
+        for (const v of templateVertices) {
+          const match = String(v.id).match(/^TEMPLATE_(\d+)$/);
+          const num = match ? parseInt(match[1], 10) : 0;
+          if (num >= lastNum) {
+            lastNum = num;
+            lastVertex = v;
+          }
+        }
+
+        if (!lastVertex) {
+          console.log('// Could not determine last TEMPLATE vertex to undo');
+          return;
+        }
+
+        const vid = lastVertex.id;
+
+        // Remove any edges that reference this vertex
+        for (const [edgeId, edge] of Object.entries(graph.edges)) {
+          if (edge.u === vid || edge.v === vid) {
+            delete graph.edges[edgeId];
+          }
+        }
+
+        // Remove the vertex itself
+        delete graph.vertices[vid];
+
+        // Clear selection if it was pointing at this vertex
+        setSelectedVertexId((current) => (current === vid ? null : current));
+
+        // Force rerender so changes show up
+        setGraphVersion((v) => v + 1);
+
+        console.log(`// Undid vertex ${vid} and its connected edges`);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [graph]);
+
+  /* Measure the rendered map container to know the viewport size */
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -77,7 +197,62 @@ function CampusMap() {
     setZoom((z) => clamp(z / 1.25, MIN_ZOOM, MAX_ZOOM));
   };
 
-  // Mouse-based panning with window-level listeners + click-to-log
+  // --- Vertex click handler (for edge creation in edit mode) ---
+  const handleVertexClick = (vertex) => {
+    if (!ENABLE_GRAPH_EDIT) return;
+
+    const id = vertex.id;
+
+    // First click: select start vertex (u)
+    if (!selectedVertexId) {
+      setSelectedVertexId(id);
+      return;
+    }
+
+    // Clicking same vertex again: clear selection
+    if (selectedVertexId === id) {
+      setSelectedVertexId(null);
+      return;
+    }
+
+    // Second vertex clicked: create an edge from selectedVertexId -> id
+    const u = selectedVertexId;
+    const v = id;
+
+    const uVertex = graph.vertices[u];
+    const vVertex = graph.vertices[v];
+
+    // Fallback in case something is weird, but in normal flow both exist
+    let weight = 60;
+
+    if (uVertex && vVertex) {
+      const dx = uVertex.position.x - vVertex.position.x;
+      const dy = uVertex.position.y - vVertex.position.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      // Use rounded distance as the edge weight
+      weight = Math.round(distance);
+    }
+
+    const edgeNumber = edgeIdRef.current++;
+    const edgeId = `TEMPLATE_E${edgeNumber}`;
+
+    graph.addEdge({
+      id: edgeId,
+      u,
+      v,
+      weight,
+      // directed: false  // omitted -> defaults to false in edge()
+    });
+
+    // Force rerender so new edge appears
+    setGraphVersion((ver) => ver + 1);
+
+    // Reset selection for the next edge
+    setSelectedVertexId(null);
+  };
+
+  // Mouse-based panning with window-level listeners + click-to-create vertices
   const handleMouseDown = (e) => {
     // Only left-click
     if (e.button !== 0) return;
@@ -140,7 +315,7 @@ function CampusMap() {
       window.removeEventListener('mousemove', handleWindowMouseMove);
       window.removeEventListener('mouseup', handleWindowMouseUp);
 
-      // If we didn't actually drag, treat this as a click → create a TEMPLATE vertex
+      // If we didn't actually drag, treat this as a click on the MAP (not on a vertex) → create a TEMPLATE vertex
       if (ENABLE_GRAPH_EDIT && !movedRef.current && containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
         const screenX = upEvent.clientX - rect.left; // relative to map viewport
@@ -170,11 +345,6 @@ function CampusMap() {
 
         // Force a rerender so the new vertex appears
         setGraphVersion((v) => v + 1);
-
-        // Log a ready-to-paste line for campusGraph.js
-        console.log(
-          `g.addVertex({ id: '${id}', name: 'TEMPLATE', x: ${worldX}, y: ${worldY}, isTerminal: false });`
-        );
       }
     };
 
@@ -239,6 +409,10 @@ function CampusMap() {
                 key={vertex.id}
                 vertex={vertex}
                 screenPosition={screenPosition}
+                onClick={ENABLE_GRAPH_EDIT ? handleVertexClick : undefined}
+                isSelected={
+                  ENABLE_GRAPH_EDIT && selectedVertexId === vertex.id
+                }
               />
             );
           })}
