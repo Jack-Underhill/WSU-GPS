@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function VertexNode({ vertex, screenPosition, onClick, isSelected }) {
+export default function VertexNode({ vertex, screenPosition, onClick, isSelected, onHoverChange }) {
   const { id, name } = vertex;
   const { x, y } = screenPosition;
   const [hovered, setHovered] = useState(false);
@@ -19,14 +19,24 @@ export default function VertexNode({ vertex, screenPosition, onClick, isSelected
     onClick(vertex);
   };
 
+  const handleMouseEnter = () => {
+    setHovered(true);
+    if (onHoverChange) onHoverChange(true);
+  };
+
+  const handleMouseLeave = () => {
+    setHovered(false);
+    if (onHoverChange) onHoverChange(false);
+  };
+
   return (
     <div
       className="absolute"
       style={{ left: x, top: y }}
       onMouseDown={handleMouseDown}
       onClick={handleClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* The actual vertex dot */}
       <div
@@ -34,19 +44,19 @@ export default function VertexNode({ vertex, screenPosition, onClick, isSelected
           relative
           -translate-x-1/2 -translate-y-1/2
           w-4 h-4 z-10 rounded-full
-          ${isSelected ? 'bg-yellow-400 ring-2 ring-yellow-300 scale-125' : 'bg-blue-500/50'}
+          ${isSelected ? 'bg-blue-500 ring-2 ring-blue-400 scale-125' : 'bg-blue-500/50'}
           cursor-pointer
           transition
-          hover:bg-yellow-400
+          hover:bg-blue-500
           hover:scale-125
           hover:ring-2
-          hover:ring-yellow-300
+          hover:ring-blue-400
         `}
         title={`${id} (${name})`}
       />
 
-      {/* Hover label with unique ID */}
-      {hovered && (
+      {/* Optional ID label if you want it back */}
+      {/* {hovered && (
         <div
           className="
             absolute z-30
@@ -64,7 +74,7 @@ export default function VertexNode({ vertex, screenPosition, onClick, isSelected
         >
           {id}
         </div>
-      )}
+      )} */}
     </div>
   );
 }

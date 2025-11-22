@@ -6,6 +6,14 @@ export function createGraph() {
     const edges     = {};  // E
     const adjacency = {};  // adjacency list: vertexId -> neighbors[]
 
+    function getIncidentEdges(id) {
+        return (adjacency[id] || []).map(n => n.edgeId);
+    }
+
+    function getDegree(id) {
+        return (adjacency[id] || []).length;
+    }
+
     function addVertex(props) {
         const v = vertex(props);
         vertices[v.id] = v;

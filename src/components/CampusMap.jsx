@@ -47,6 +47,9 @@ function CampusMap() {
   // Edge-creation selection state: first vertex clicked for an edge
   const [selectedVertexId, setSelectedVertexId] = useState(null);
 
+  // Hovered vertex for edge highlighting (always active, not edit-only)
+  const [hoveredVertexId, setHoveredVertexId] = useState(null);
+
   // Derived camera object for worldToScreen()
   const camera = {
     zoom,
@@ -352,6 +355,12 @@ function CampusMap() {
     window.addEventListener('mouseup', handleWindowMouseUp);
   };
 
+  // --- Compute highlighted edges from adjacency + hovered vertex ---
+  const highlightedEdgeIds =
+    hoveredVertexId && graph.adjacency[hoveredVertexId]
+      ? graph.adjacency[hoveredVertexId].map((n) => n.edgeId)
+      : [];
+
   // Compute transform for the map image so it matches the camera
   const hasViewport = viewportSize.width > 0 && viewportSize.height > 0;
   let mapStyle = {};
@@ -394,7 +403,12 @@ function CampusMap() {
           onMouseDown={handleMouseDown}
         >
           {/* Edges first so they render under the nodes */}
-          <EdgeLayer graph={graph} viewportSize={viewportSize} camera={camera} />
+          <EdgeLayer
+            graph={graph}
+            viewportSize={viewportSize}
+            camera={camera}
+            highlightedEdgeIds={highlightedEdgeIds}
+          />
 
           {/* Vertices on top */}
           {Object.values(graph.vertices).map((vertex) => {
@@ -413,6 +427,9 @@ function CampusMap() {
                 isSelected={
                   ENABLE_GRAPH_EDIT && selectedVertexId === vertex.id
                 }
+                onHoverChange={(isHovering) => {
+                  setHoveredVertexId(isHovering ? vertex.id : null);
+                }}
               />
             );
           })}
