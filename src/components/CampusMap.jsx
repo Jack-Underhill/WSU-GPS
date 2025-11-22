@@ -418,6 +418,11 @@ function CampusMap() {
               camera
             );
 
+            const degree =
+              graph.adjacency && graph.adjacency[vertex.id]
+                ? graph.adjacency[vertex.id].length
+                : 0;
+
             return (
               <VertexNode
                 key={vertex.id}
@@ -430,6 +435,7 @@ function CampusMap() {
                 onHoverChange={(isHovering) => {
                   setHoveredVertexId(isHovering ? vertex.id : null);
                 }}
+                degree={degree}
               />
             );
           })}
