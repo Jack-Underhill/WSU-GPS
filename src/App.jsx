@@ -10,6 +10,10 @@ function App() {
     distance: null,
   });
 
+  // queries coming from navbar when user hits Enter
+  const [startSearchQuery, setStartSearchQuery] = useState(null);
+  const [endSearchQuery, setEndSearchQuery] = useState(null);
+
   // Called by CampusMap when start/end or distance changes
   const handleRouteSelectionChange = useCallback(
     ({ startVertex, endVertex, distance }) => {
@@ -37,6 +41,18 @@ function App() {
     }));
   };
 
+  // called when user presses Enter in the start input
+  const handleStartNameCommit = () => {
+    const q = routeSummary.startName.trim();
+    setStartSearchQuery(q || null);
+  };
+
+  // called when user presses Enter in the end input
+  const handleEndNameCommit = () => {
+    const q = routeSummary.endName.trim();
+    setEndSearchQuery(q || null);
+  };
+
   return (
     <div className="min-h-screen text-white">
       <Navbar
@@ -45,10 +61,16 @@ function App() {
         distance={routeSummary.distance}
         onStartNameChange={handleStartNameChange}
         onEndNameChange={handleEndNameChange}
+        onStartNameCommit={handleStartNameCommit}
+        onEndNameCommit={handleEndNameCommit}
       />
 
       <main className="relative h-[calc(100vh-3rem)]">
-        <CampusMap onRouteSelectionChange={handleRouteSelectionChange} />
+        <CampusMap
+          onRouteSelectionChange={handleRouteSelectionChange}
+          startSearchQuery={startSearchQuery}
+          endSearchQuery={endSearchQuery}
+        />
       </main>
     </div>
   );

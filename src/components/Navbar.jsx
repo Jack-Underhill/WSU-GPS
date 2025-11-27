@@ -4,16 +4,8 @@ import portfolioIcon from "../assets/portfolio.svg";
 import aboutIcon from "../assets/about.svg";
 
 const links = [
-  {
-    label: "Portfolio",
-    href: "https://jack-underhill.netlify.app/",
-    icon: portfolioIcon,
-  },
-  {
-    label: "About this project",
-    href: "https://github.com/Jack-Underhill/WSU-GPS#readme",
-    icon: aboutIcon,
-  },
+  { label: "Portfolio", href: "https://jack-underhill.netlify.app/", icon: portfolioIcon },
+  { label: "About this project", href: "https://github.com/Jack-Underhill/WSU-GPS#readme", icon: aboutIcon },
 ];
 
 function Navbar({
@@ -22,6 +14,8 @@ function Navbar({
   distance,
   onStartNameChange,
   onEndNameChange,
+  onStartNameCommit,
+  onEndNameCommit,
 }) {
   return (
     <header className="z-10 flex h-12 items-center justify-between bg-slate-950/80 px-10 backdrop-blur">
@@ -33,7 +27,7 @@ function Navbar({
         </span>
       </div>
 
-      {/* Middle: current route summary */}
+      {/* Middle: route summary + inputs */}
       <div className="flex items-center px-3 gap-3 text-xs md:text-sm">
         {/* From input pill */}
         <div className="flex items-center gap-1">
@@ -43,6 +37,9 @@ function Navbar({
             value={startName}
             placeholder="Select start"
             onChange={(e) => onStartNameChange?.(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") onStartNameCommit?.();
+            }}
             className="w-25 rounded-full border border-slate-700
                        bg-slate-900/80 px-3 py-1
                        font-mono text-[11px] text-slate-100
@@ -60,6 +57,9 @@ function Navbar({
             value={endName}
             placeholder="Select end"
             onChange={(e) => onEndNameChange?.(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") onEndNameCommit?.();
+            }}
             className="w-25 rounded-full border border-slate-700
                        bg-slate-900/80 px-3 py-1
                        font-mono text-[11px] text-slate-100

@@ -9,12 +9,13 @@ import { useMapCamera } from '../hooks/useMapCamera.js';
 import { useGraphEditor } from '../hooks/useGraphEditor.js';
 import { useGraphHover } from '../hooks/useGraphHover.js';
 import { usePathfinding } from '../hooks/usePathfinding.js';
+import { searchVertices } from '../helper/searchVertices.js';
 
 const IS_EDITABLE       = false;
 const IS_DEV_MODE       = import.meta.env.DEV;
 const ENABLE_GRAPH_EDIT = IS_EDITABLE && IS_DEV_MODE;
 
-function CampusMap({ onRouteSelectionChange }) {
+function CampusMap({ onRouteSelectionChange, startSearchQuery, endSearchQuery }) {
   const graph = useMemo(() => createCampusGraph(), []);
 
   // Graph edit tools (dev-only)
@@ -46,6 +47,7 @@ function CampusMap({ onRouteSelectionChange }) {
     activeTraverseVertexId,
     activeTraverseEdgeId,
     traversalVisitedVertexIds,
+    selectRouteByVertexIds,
   } = usePathfinding(graph);
 
   // Notify parent (App) whenever start/end selection changes
@@ -67,6 +69,39 @@ function CampusMap({ onRouteSelectionChange }) {
     onRouteSelectionChange({ startVertex, endVertex, distance });
   }, [startVertexId, endVertexId, pathEdgeIds, graph, onRouteSelectionChange]);
 
+  // Search: when navbar commits a query, try to match a vertex by name/id
+  useEffect(() => {
+    if (!startSearchQuery && !endSearchQuery) return;
+
+    const { startVertex, endVertex } = searchVertices(graph, {
+      startQuery: startSearchQuery,
+      endQuery: endSearchQuery,
+    });
+
+    let newStartId;
+    let newEndId;
+
+    if (startSearchQuery) {
+      if (startVertex) {
+        newStartId = startVertex.id;
+      } else {
+        console.log("[Search] No vertex found for start:", startSearchQuery);
+      }
+    }
+
+    if (endSearchQuery) {
+      if (endVertex) {
+        newEndId = endVertex.id;
+      } else {
+        console.log("[Search] No vertex found for end:", endSearchQuery);
+      }
+    }
+
+    // If either side matched, update the route
+    if (newStartId || newEndId) {
+      selectRouteByVertexIds(newStartId, newEndId);
+    }
+  }, [startSearchQuery, endSearchQuery]);
 
   // Camera + viewport handled by custom hook
   const {

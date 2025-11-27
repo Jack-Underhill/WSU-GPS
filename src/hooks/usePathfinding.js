@@ -203,6 +203,27 @@ export function usePathfinding(graph) {
     };
   }, [traversalSteps, pendingPathVertexIds, pendingPathEdgeIds]);
 
+  const selectRouteByVertexIds = (maybeStartId, maybeEndId) => {
+    // If a value is undefined, keep the current one;
+    // if it's null, explicitly clear that side.
+    const nextStartId =
+      maybeStartId !== undefined ? maybeStartId : startVertexId;
+    const nextEndId =
+      maybeEndId !== undefined ? maybeEndId : endVertexId;
+
+    // Clear current visuals
+    clearPathAndTraversal();
+
+    setStartVertexId(nextStartId);
+    setEndVertexId(nextEndId);
+
+    // Only run Dijkstra if both are set
+    if (nextStartId != null && nextEndId != null) {
+      computeAndLogRoute(nextStartId, nextEndId);
+    }
+  };
+
+
   return {
     startVertexId,
     endVertexId,
@@ -213,5 +234,6 @@ export function usePathfinding(graph) {
     traversalVisitedVertexIds,
     handleVertexClickForRoute,
     resetRoute,
+    selectRouteByVertexIds,
   };
 }
