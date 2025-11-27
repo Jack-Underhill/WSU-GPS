@@ -8,6 +8,7 @@ export default function EdgeLine({
   isHighlighted = false,
   isHovered = false,
   onHoverChange,
+  isOnPath = false,
 }) {
   const u = vertices[edge.u];
   const v = vertices[edge.v];
@@ -16,12 +17,23 @@ export default function EdgeLine({
   const { x: x1, y: y1 } = worldToScreen(u.position, viewportSize, camera);
   const { x: x2, y: y2 } = worldToScreen(v.position, viewportSize, camera);
 
-  const active = isHighlighted || isHovered;
+  // Decide stroke based on priority:
+  // 1. Path edge (route) -> amber
+  // 2. Hover/adjacency highlight -> bright blue
+  // 3. Default -> faint blue
+  let stroke;
+  let strokeWidth;
 
-  const stroke = active
-    ? 'rgba(59,130,246,0.8)' // brighter when active
-    : 'rgba(59,130,246,0.4)';
-  const strokeWidth = active ? 4 : 2;
+  if (isOnPath) {
+    stroke = 'rgba(250,204,21,0.95)'; // amber-400-ish
+    strokeWidth = 5;
+  } else if (isHighlighted || isHovered) {
+    stroke = 'rgba(59,130,246,0.8)';  // bright blue
+    strokeWidth = 4;
+  } else {
+    stroke = 'rgba(59,130,246,0.4)';  // faint blue
+    strokeWidth = 2;
+  }
 
   // Midpoint for the weight label
   const midX = (x1 + x2) / 2;
@@ -68,7 +80,7 @@ export default function EdgeLine({
         style={{ pointerEvents: 'none' }}
       />
 
-      {/* Hover label */}
+      {/* Hover weight label, styled like the degree badge */}
       {isHovered && (
         <g style={{ pointerEvents: 'none' }}>
           <rect

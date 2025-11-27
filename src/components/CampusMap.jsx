@@ -36,12 +36,13 @@ function CampusMap() {
     handleEdgeHoverChange,
   } = useGraphHover(graph);
 
-  // Pathfinding (Phase 1: start/end selection + logging)
+  // Pathfinding: selection + final path
   const {
     handleVertexClickForRoute,
-    // startVertexId,
-    // endVertexId,
-    // resetRoute,
+    startVertexId,
+    endVertexId,
+    pathVertexIds,
+    pathEdgeIds,
   } = usePathfinding(graph);
 
   // Camera + viewport handled by custom hook
@@ -67,6 +68,8 @@ function CampusMap() {
   const vertexOnClick = ENABLE_GRAPH_EDIT
     ? handleVertexClick
     : handleVertexClickForRoute;
+
+  const pathVertexSet = new Set(pathVertexIds);
 
   return (
     <div className="flex justify-center items-center bg-slate-900">
@@ -95,6 +98,7 @@ function CampusMap() {
             highlightedEdgeIds={highlightedEdgeIds}
             hoveredEdgeId={hoveredEdgeId}
             onEdgeHoverChange={handleEdgeHoverChange}
+            pathEdgeIds={pathEdgeIds}
           />
 
           {/* Vertices on top */}
@@ -106,6 +110,9 @@ function CampusMap() {
             );
 
             const degree = getDegree(vertex.id);
+            const isOnPath = pathVertexSet.has(vertex.id);
+            const isRouteStart = startVertexId === vertex.id;
+            const isRouteEnd = endVertexId === vertex.id;
 
             return (
               <VertexNode
@@ -120,6 +127,9 @@ function CampusMap() {
                   handleVertexHoverChange(vertex.id, isHovering)
                 }
                 degree={degree}
+                isOnPath={isOnPath}
+                isRouteStart={isRouteStart}
+                isRouteEnd={isRouteEnd}
               />
             );
           })}

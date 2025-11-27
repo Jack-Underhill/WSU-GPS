@@ -2,13 +2,21 @@ import { useState } from 'react';
 import { runDijkstra } from '../algorithms/dijkstra.js';
 
 /**
- * Phase 2:
+ * Phase 3:
  * - Track start/end vertices for a route.
- * - When both are chosen, run Dijkstra and log the computed path.
+ * - When both are chosen, run Dijkstra, log the path,
+ *   and store the final path vertex/edge IDs for highlighting.
  */
 export function usePathfinding(graph) {
   const [startVertexId, setStartVertexId] = useState(null);
   const [endVertexId, setEndVertexId] = useState(null);
+  const [pathVertexIds, setPathVertexIds] = useState([]);
+  const [pathEdgeIds, setPathEdgeIds] = useState([]);
+
+  const clearPath = () => {
+    setPathVertexIds([]);
+    setPathEdgeIds([]);
+  };
 
   const computeAndLogRoute = (startId, endId) => {
     if (!graph) return;
@@ -21,8 +29,13 @@ export function usePathfinding(graph) {
         console.log(
           `[Route] No path found from ${startId} to ${endId}.`
         );
+        clearPath();
         return;
       }
+
+      // Store final path for highlighting
+      setPathVertexIds(pathVertices);
+      setPathEdgeIds(pathEdges);
 
       console.log('========================================');
       console.log(`[Route] Dijkstra from ${startId} to ${endId}`);
@@ -39,6 +52,7 @@ export function usePathfinding(graph) {
       console.log('========================================');
     } catch (err) {
       console.error('[Route] Error running Dijkstra:', err);
+      clearPath();
     }
   };
 
@@ -51,6 +65,7 @@ export function usePathfinding(graph) {
     if (startVertexId === null) {
       setStartVertexId(id);
       setEndVertexId(null);
+      clearPath();
       console.log(`[Route] Start selected: ${id}`);
       return;
     }
@@ -60,6 +75,7 @@ export function usePathfinding(graph) {
       if (id === startVertexId) {
         // Clicking the same vertex again clears the start
         setStartVertexId(null);
+        clearPath();
         console.log('[Route] Cleared start vertex');
       } else {
         setEndVertexId(id);
@@ -67,7 +83,7 @@ export function usePathfinding(graph) {
           `[Route] Route selected: ${startVertexId} -> ${id}`
         );
 
-        // Phase 2: as soon as start & end, run Dijkstra
+        // As soon as start & end, run Dijkstra
         computeAndLogRoute(startVertexId, id);
       }
       return;
@@ -77,18 +93,22 @@ export function usePathfinding(graph) {
     // Treat any click as "restart route" from this vertex
     setStartVertexId(id);
     setEndVertexId(null);
+    clearPath();
     console.log(`[Route] Restarting route from: ${id}`);
   };
 
   const resetRoute = () => {
     setStartVertexId(null);
     setEndVertexId(null);
+    clearPath();
     console.log('[Route] Reset route selection');
   };
 
   return {
     startVertexId,
     endVertexId,
+    pathVertexIds,
+    pathEdgeIds,
     handleVertexClickForRoute,
     resetRoute,
   };
