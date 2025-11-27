@@ -6,7 +6,7 @@ import VertexNode from './VertexNode.jsx';
 import EdgeLayer from './EdgeLayer.jsx';
 import MapControls from './MapControls.jsx';
 import { useMapCamera } from '../hooks/useMapCamera.js';
-import { useGraphEdit } from '../hooks/useGraphEdit.js';
+import { useGraphEditor } from '../hooks/useGraphEditor.js';
 import { useGraphHover } from '../hooks/useGraphHover.js';
 
 const IS_EDITABLE       = false;
@@ -21,7 +21,7 @@ function CampusMap() {
     selectedVertexId,
     handleVertexClick,
     handleMapClickWorld,
-  } = useGraphEdit({
+  } = useGraphEditor({
     graph,
     enabled: ENABLE_GRAPH_EDIT,
   });
@@ -31,6 +31,8 @@ function CampusMap() {
     highlightedEdgeIds,
     getDegree,
     handleVertexHoverChange,
+    hoveredEdgeId,
+    handleEdgeHoverChange,
   } = useGraphHover(graph);
 
   // Camera + viewport handled by custom hook
@@ -75,6 +77,8 @@ function CampusMap() {
             viewportSize={viewportSize}
             camera={camera}
             highlightedEdgeIds={highlightedEdgeIds}
+            hoveredEdgeId={hoveredEdgeId}
+            onEdgeHoverChange={handleEdgeHoverChange}
           />
 
           {/* Vertices on top */}

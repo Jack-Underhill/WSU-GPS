@@ -10,7 +10,7 @@ import { useState, useMemo, useCallback } from 'react';
  */
 export function useGraphHover(graph) {
     const [hoveredVertexId, setHoveredVertexId] = useState(null);
-    const [hoveredEdgeId, setHoveredEdgeId]     = useState(null); // future use
+    const [hoveredEdgeId, setHoveredEdgeId]     = useState(null);
 
     const highlightedEdgeIds = useMemo(() => {
         if (!graph || !hoveredVertexId || !graph.adjacency) return [];
@@ -40,7 +40,6 @@ export function useGraphHover(graph) {
         }
     }, []);
 
-    // Placeholder for future edge-hover behavior
     const handleEdgeHoverChange = useCallback((edgeId, isHovering) => {
         if (isHovering) {
             setHoveredEdgeId(edgeId);
@@ -53,12 +52,10 @@ export function useGraphHover(graph) {
 
     return {
         hoveredVertexId,
+        hoveredEdgeId,
         highlightedEdgeIds,
         getDegree,
         handleVertexHoverChange,
-
-        // Ready for future edge-hover features
-        hoveredEdgeId,
         handleEdgeHoverChange,
     };
 }
