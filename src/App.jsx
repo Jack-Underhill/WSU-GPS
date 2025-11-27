@@ -66,11 +66,13 @@ function App() {
       />
 
       <main className="relative h-[calc(100vh-3rem)]">
-        <CampusMap
-          onRouteSelectionChange={handleRouteSelectionChange}
-          startSearchQuery={startSearchQuery}
-          endSearchQuery={endSearchQuery}
-        />
+  <CampusMap
+    onRouteSelectionChange={handleRouteSelectionChange}
+    startSearchQuery={startSearchQuery}   // on Enter (commit)
+    endSearchQuery={endSearchQuery}       // on Enter (commit)
+    startInputValue={routeSummary.startName}  // live typing
+    endInputValue={routeSummary.endName}      // live typing
+  />
       </main>
     </div>
   );

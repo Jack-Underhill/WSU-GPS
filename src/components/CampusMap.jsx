@@ -9,13 +9,19 @@ import { useMapCamera } from '../hooks/useMapCamera.js';
 import { useGraphEditor } from '../hooks/useGraphEditor.js';
 import { useGraphHover } from '../hooks/useGraphHover.js';
 import { usePathfinding } from '../hooks/usePathfinding.js';
-import { searchVertices } from '../helper/searchVertices.js';
+import { searchVertices, suggestVertices } from '../helper/searchVertices.js';
 
 const IS_EDITABLE       = false;
 const IS_DEV_MODE       = import.meta.env.DEV;
 const ENABLE_GRAPH_EDIT = IS_EDITABLE && IS_DEV_MODE;
 
-function CampusMap({ onRouteSelectionChange, startSearchQuery, endSearchQuery }) {
+function CampusMap({ 
+  onRouteSelectionChange,
+  startSearchQuery,
+  endSearchQuery,
+  startInputValue,
+  endInputValue, 
+}) {
   const graph = useMemo(() => createCampusGraph(), []);
 
   // Graph edit tools (dev-only)
@@ -68,6 +74,33 @@ function CampusMap({ onRouteSelectionChange, startSearchQuery, endSearchQuery })
 
     onRouteSelectionChange({ startVertex, endVertex, distance });
   }, [startVertexId, endVertexId, pathEdgeIds, graph, onRouteSelectionChange]);
+
+  // Live suggestions: on each keystroke, log up to 4 ranked vertex suggestions
+  useEffect(() => {
+    // If both inputs are empty, nothing to suggest or log
+    if (!startInputValue && !endInputValue) return;
+
+    if (startInputValue) {
+      const startSuggestions = suggestVertices(graph, startInputValue);
+      console.log(
+        "[Suggestions] Start:",
+        startInputValue,
+        "=>",
+        startSuggestions.map((v) => v.name || v.id)
+      );
+    }
+
+    if (endInputValue) {
+      const endSuggestions = suggestVertices(graph, endInputValue);
+      console.log(
+        "[Suggestions] End:",
+        endInputValue,
+        "=>",
+        endSuggestions.map((v) => v.name || v.id)
+      );
+    }
+  }, [startInputValue, endInputValue, graph]);
+
 
   // Search: when navbar commits a query, try to match a vertex by name/id
   useEffect(() => {

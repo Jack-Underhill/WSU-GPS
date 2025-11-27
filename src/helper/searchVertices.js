@@ -1,35 +1,74 @@
+// Shared normalizer
+const normalize = (q) => (q || "").trim().toLowerCase();
+
 /**
- * "Dumb" vertex search for now:
- * - case-insensitive
- * - prefers exact match on id or name
- * - falls back to startsWith on id or name
+ * Suggest up to `maxResults` vertices for a given query.
  *
- * Returns the matched vertex objects (or null).
+ * "Dumb" but ranked:
+ *  - exact match on id or name (best)
+ *  - startsWith on id or name
+ *  - substring match on id or name
+ *
+ * Returns an array of vertex objects, sorted best → worst.
+ */
+export function suggestVertices(graph, rawQuery, maxResults = 4) {
+  const vertices = Object.values(graph.vertices ?? {});
+  const q = normalize(rawQuery);
+
+  if (!q) return [];
+
+  const scored = [];
+
+  for (const v of vertices) {
+    const id = (v.id || "").toLowerCase();
+    const name = (v.name || "").toLowerCase();
+
+    let score = Infinity;
+
+    // 0 = exact match
+    if (id === q || name === q) {
+      score = 0;
+    }
+    // 1 = starts with
+    else if (id.startsWith(q) || name.startsWith(q)) {
+      score = 1;
+    }
+    // 2 = substring match
+    else if (id.includes(q) || name.includes(q)) {
+      score = 2;
+    }
+
+    if (score < Infinity) {
+      scored.push({ vertex: v, score });
+    }
+  }
+
+  // Sort by score, then by name/id for stable ordering
+  scored.sort((a, b) => {
+    if (a.score !== b.score) return a.score - b.score;
+
+    const nameA = (a.vertex.name || a.vertex.id || "").toLowerCase();
+    const nameB = (b.vertex.name || b.vertex.id || "").toLowerCase();
+    if (nameA < nameB) return -1;
+    if (nameA > nameB) return 1;
+    return 0;
+  });
+
+  return scored.slice(0, maxResults).map((entry) => entry.vertex);
+}
+
+/**
+ * Commit-style search:
+ * - Uses the same ranking as `suggestVertices`, but only returns
+ *   the single best match for each query.
+ *
+ * Returns:
+ *   { startVertex: vertex|null, endVertex: vertex|null }
  */
 export function searchVertices(graph, { startQuery, endQuery } = {}) {
-  const vertices = Object.values(graph.vertices ?? {});
-
-  const normalize = (q) => (q || "").trim().toLowerCase();
-
-  const findVertex = (rawQuery) => {
-    const q = normalize(rawQuery);
-    if (!q) return null;
-
-    // 1) exact match on id or name
-    let match =
-      vertices.find(
-        (v) =>
-          v.id.toLowerCase() === q ||
-          (v.name && v.name.toLowerCase() === q)
-      ) ||
-      // 2) fallback: startsWith on id or name
-      vertices.find(
-        (v) =>
-          v.id.toLowerCase().startsWith(q) ||
-          (v.name && v.name.toLowerCase().startsWith(q))
-      );
-
-    return match || null;
+  const findBest = (query) => {
+    const suggestions = suggestVertices(graph, query, 1);
+    return suggestions[0] || null;
   };
 
   const result = {
@@ -38,11 +77,11 @@ export function searchVertices(graph, { startQuery, endQuery } = {}) {
   };
 
   if (startQuery) {
-    result.startVertex = findVertex(startQuery);
+    result.startVertex = findBest(startQuery);
   }
 
   if (endQuery) {
-    result.endVertex = findVertex(endQuery);
+    result.endVertex = findBest(endQuery);
   }
 
   return result;
