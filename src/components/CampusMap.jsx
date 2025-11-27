@@ -45,6 +45,7 @@ function CampusMap() {
     pathEdgeIds,
     activeTraverseVertexId,
     activeTraverseEdgeId,
+    traversalVisitedVertexIds,
   } = usePathfinding(graph);
 
   // Camera + viewport handled by custom hook
@@ -72,6 +73,7 @@ function CampusMap() {
     : handleVertexClickForRoute;
 
   const pathVertexSet = new Set(pathVertexIds);
+  const traversalVisitedSet = new Set(traversalVisitedVertexIds);
 
   return (
     <div className="flex justify-center items-center bg-slate-900">
@@ -117,6 +119,7 @@ function CampusMap() {
             const isRouteStart = startVertexId === vertex.id;
             const isRouteEnd = endVertexId === vertex.id;
             const isTraversalActive = activeTraverseVertexId === vertex.id;
+            const isTraversalVisited = traversalVisitedSet.has(vertex.id);
 
             return (
               <VertexNode
@@ -135,6 +138,7 @@ function CampusMap() {
                 isRouteStart={isRouteStart}
                 isRouteEnd={isRouteEnd}
                 isTraversalActive={isTraversalActive}
+                isTraversalVisited={isTraversalVisited}
               />
             );
           })}

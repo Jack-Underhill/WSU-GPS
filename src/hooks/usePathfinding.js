@@ -29,6 +29,7 @@ export function usePathfinding(graph) {
   const [traversalSteps, setTraversalSteps] = useState([]);
   const [activeTraverseVertexId, setActiveTraverseVertexId] = useState(null);
   const [activeTraverseEdgeId, setActiveTraverseEdgeId] = useState(null);
+  const [traversalVisitedVertexIds, setTraversalVisitedVertexIds] = useState([]);
 
   const clearPathAndTraversal = () => {
     setPathVertexIds([]);
@@ -38,6 +39,7 @@ export function usePathfinding(graph) {
     setTraversalSteps([]);
     setActiveTraverseVertexId(null);
     setActiveTraverseEdgeId(null);
+    setTraversalVisitedVertexIds([]);
   };
 
   const computeAndLogRoute = (startId, endId) => {
@@ -147,6 +149,7 @@ export function usePathfinding(graph) {
     if (!traversalSteps || traversalSteps.length === 0) {
       setActiveTraverseVertexId(null);
       setActiveTraverseEdgeId(null);
+      setTraversalVisitedVertexIds([]);
       return;
     }
 
@@ -155,9 +158,14 @@ export function usePathfinding(graph) {
     const applyStep = (step) => {
       if (!step) return;
       if (step.type === 'visit-vertex') {
+        // Mark this vertex as visited (and keep previous ones)
+        setTraversalVisitedVertexIds((prev) =>
+          prev.includes(step.vertexId) ? prev : [...prev, step.vertexId]
+        );
         setActiveTraverseVertexId(step.vertexId);
         setActiveTraverseEdgeId(null);
       } else if (step.type === 'consider-edge') {
+        // Still show which vertex is "stemming from"
         setActiveTraverseVertexId(step.from);
         setActiveTraverseEdgeId(step.edgeId);
       }
@@ -168,6 +176,7 @@ export function usePathfinding(graph) {
     setPathEdgeIds([]);
     setActiveTraverseVertexId(null);
     setActiveTraverseEdgeId(null);
+    setTraversalVisitedVertexIds([]);
 
     // Apply first step immediately
     applyStep(traversalSteps[0]);
@@ -176,7 +185,8 @@ export function usePathfinding(graph) {
       index += 1;
       if (index >= traversalSteps.length) {
         clearInterval(interval);
-        // After finishing, clear traversal highlight
+        // After finishing, clear traversal highlight,
+        // but keep visited vertices so the explored region is visible.
         setActiveTraverseEdgeId(null);
         setActiveTraverseVertexId(null);
 
@@ -200,6 +210,7 @@ export function usePathfinding(graph) {
     pathEdgeIds,
     activeTraverseVertexId,
     activeTraverseEdgeId,
+    traversalVisitedVertexIds,
     handleVertexClickForRoute,
     resetRoute,
   };
