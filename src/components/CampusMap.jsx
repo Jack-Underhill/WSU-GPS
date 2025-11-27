@@ -20,7 +20,10 @@ function CampusMap({
   startSearchQuery,
   endSearchQuery,
   startInputValue,
-  endInputValue, 
+  endInputValue,
+  onRouteSuggestionsChange, 
+  startSuggestionsEnabled,
+  endSuggestionsEnabled,
 }) {
   const graph = useMemo(() => createCampusGraph(), []);
 
@@ -75,32 +78,27 @@ function CampusMap({
     onRouteSelectionChange({ startVertex, endVertex, distance });
   }, [startVertexId, endVertexId, pathEdgeIds, graph, onRouteSelectionChange]);
 
-  // Live suggestions: on each keystroke, log up to 4 ranked vertex suggestions
+  // Live suggestions: on each keystroke, compute up to 4 ranked vertex suggestions
   useEffect(() => {
-    // If both inputs are empty, nothing to suggest or log
-    if (!startInputValue && !endInputValue) return;
+    if (!onRouteSuggestionsChange) return;
 
-    if (startInputValue) {
-      const startSuggestions = suggestVertices(graph, startInputValue);
-      console.log(
-        "[Suggestions] Start:",
-        startInputValue,
-        "=>",
-        startSuggestions.map((v) => v.name || v.id)
-      );
-    }
+    const startSuggestions = startSuggestionsEnabled && startInputValue
+      ? suggestVertices(graph, startInputValue)
+      : [];
 
-    if (endInputValue) {
-      const endSuggestions = suggestVertices(graph, endInputValue);
-      console.log(
-        "[Suggestions] End:",
-        endInputValue,
-        "=>",
-        endSuggestions.map((v) => v.name || v.id)
-      );
-    }
-  }, [startInputValue, endInputValue, graph]);
+    const endSuggestions = endSuggestionsEnabled && endInputValue
+      ? suggestVertices(graph, endInputValue)
+      : [];
 
+    onRouteSuggestionsChange({ startSuggestions, endSuggestions });
+  }, [
+    startInputValue, 
+    endInputValue, 
+    graph, 
+    onRouteSuggestionsChange,
+    startSuggestionsEnabled,
+    endSuggestionsEnabled,
+  ]);
 
   // Search: when navbar commits a query, try to match a vertex by name/id
   useEffect(() => {

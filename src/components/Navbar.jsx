@@ -1,4 +1,5 @@
 import NavbarLink from "./NavbarLink";
+import RouteSearchInput from "./RouteSearchInput";
 
 import portfolioIcon from "../assets/portfolio.svg";
 import aboutIcon from "../assets/about.svg";
@@ -16,9 +17,13 @@ function Navbar({
   onEndNameChange,
   onStartNameCommit,
   onEndNameCommit,
+  startSuggestions,
+  endSuggestions,
+  onStartSuggestionSelect,
+  onEndSuggestionSelect,
 }) {
   return (
-    <header className="z-10 flex h-12 items-center justify-between bg-slate-950/80 px-10 backdrop-blur">
+    <header className="relative z-40 flex h-12 items-center justify-between bg-slate-950/80 px-10 backdrop-blur">
       {/* Left side: title/status */}
       <div className="flex items-baseline gap-2">
         <h1 className="text-base font-semibold md:text-lg">Campus GPS</h1>
@@ -29,45 +34,25 @@ function Navbar({
 
       {/* Middle: route summary + inputs */}
       <div className="flex items-center px-3 gap-3 text-xs md:text-sm">
-        {/* From input pill */}
-        <div className="flex items-center gap-1">
-          <span className="uppercase tracking-wide text-slate-400">From</span>
-          <input
-            type="text"
-            value={startName}
-            placeholder="Select start"
-            onChange={(e) => onStartNameChange?.(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") onStartNameCommit?.();
-            }}
-            className="w-25 rounded-full border border-slate-700
-                       bg-slate-900/80 px-3 py-1
-                       font-mono text-[11px] text-slate-100
-                       outline-none ring-0
-                       focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/60
-                       md:text-xs"
-          />
-        </div>
+        <RouteSearchInput
+          label="From"
+          value={startName}
+          placeholder="Select start"
+          onChange={onStartNameChange}
+          onCommit={onStartNameCommit}
+          suggestions={startSuggestions}
+          onSuggestionSelect={onStartSuggestionSelect}
+        />
 
-        {/* To input pill */}
-        <div className="flex items-center gap-1">
-          <span className="uppercase tracking-wide text-slate-400">To</span>
-          <input
-            type="text"
-            value={endName}
-            placeholder="Select end"
-            onChange={(e) => onEndNameChange?.(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") onEndNameCommit?.();
-            }}
-            className="w-25 rounded-full border border-slate-700
-                       bg-slate-900/80 px-3 py-1
-                       font-mono text-[11px] text-slate-100
-                       outline-none ring-0
-                       focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/60
-                       md:text-xs"
-          />
-        </div>
+        <RouteSearchInput
+          label="To"
+          value={endName}
+          placeholder="Select end"
+          onChange={onEndNameChange}
+          onCommit={onEndNameCommit}
+          suggestions={endSuggestions}
+          onSuggestionSelect={onEndSuggestionSelect}
+        />
 
         {/* Distance (read-only) */}
         {distance != null && (
