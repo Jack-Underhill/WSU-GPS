@@ -8,6 +8,7 @@ import MapControls from './MapControls.jsx';
 import { useMapCamera } from '../hooks/useMapCamera.js';
 import { useGraphEditor } from '../hooks/useGraphEditor.js';
 import { useGraphHover } from '../hooks/useGraphHover.js';
+import { usePathfinding } from '../hooks/usePathfinding.js';
 
 const IS_EDITABLE       = false;
 const IS_DEV_MODE       = import.meta.env.DEV;
@@ -35,6 +36,14 @@ function CampusMap() {
     handleEdgeHoverChange,
   } = useGraphHover(graph);
 
+  // Pathfinding (Phase 1: start/end selection + logging)
+  const {
+    handleVertexClickForRoute,
+    // startVertexId,
+    // endVertexId,
+    // resetRoute,
+  } = usePathfinding(graph);
+
   // Camera + viewport handled by custom hook
   const {
     containerRef,
@@ -51,6 +60,13 @@ function CampusMap() {
     enableClickToWorld: ENABLE_GRAPH_EDIT,
     onMapClickWorld:    handleMapClickWorld,
   });
+
+  // Decide what a vertex click *means*:
+  // - In edit mode: create edges (dev editor).
+  // - In normal mode: select start/end for route.
+  const vertexOnClick = ENABLE_GRAPH_EDIT
+    ? handleVertexClick
+    : handleVertexClickForRoute;
 
   return (
     <div className="flex justify-center items-center bg-slate-900">
@@ -96,7 +112,7 @@ function CampusMap() {
                 key={vertex.id}
                 vertex={vertex}
                 screenPosition={screenPosition}
-                onClick={ENABLE_GRAPH_EDIT ? handleVertexClick : undefined}
+                onClick={vertexOnClick}
                 isSelected={
                   ENABLE_GRAPH_EDIT && selectedVertexId === vertex.id
                 }
