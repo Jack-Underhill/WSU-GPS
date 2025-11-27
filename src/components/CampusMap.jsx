@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import mapImg from '../assets/map.png';
 import { createCampusGraph, MAP_WIDTH, MAP_HEIGHT } from '../helper/campusGraph.js';
 import { worldToScreen } from '../helper/coordinates.js';
@@ -14,7 +14,7 @@ const IS_EDITABLE       = false;
 const IS_DEV_MODE       = import.meta.env.DEV;
 const ENABLE_GRAPH_EDIT = IS_EDITABLE && IS_DEV_MODE;
 
-function CampusMap() {
+function CampusMap({ onRouteSelectionChange }) {
   const graph = useMemo(() => createCampusGraph(), []);
 
   // Graph edit tools (dev-only)
@@ -47,6 +47,26 @@ function CampusMap() {
     activeTraverseEdgeId,
     traversalVisitedVertexIds,
   } = usePathfinding(graph);
+
+  // Notify parent (App) whenever start/end selection changes
+  useEffect(() => {
+    if (!onRouteSelectionChange) return;
+
+    const startVertex = startVertexId ? graph.vertices[startVertexId] : null;
+    const endVertex   = endVertexId   ? graph.vertices[endVertexId]   : null;
+
+    let distance = null;
+    if (Array.isArray(pathEdgeIds) && pathEdgeIds.length > 0) {
+      distance = pathEdgeIds.reduce((sum, edgeId) => {
+        const edge = graph.edges[edgeId];
+        const w = edge && typeof edge.weight === "number" ? edge.weight : 0;
+        return sum + w;
+      }, 0);
+    }
+
+    onRouteSelectionChange({ startVertex, endVertex, distance });
+  }, [startVertexId, endVertexId, pathEdgeIds, graph, onRouteSelectionChange]);
+
 
   // Camera + viewport handled by custom hook
   const {
