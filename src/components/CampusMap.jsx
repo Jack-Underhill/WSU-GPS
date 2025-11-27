@@ -36,13 +36,15 @@ function CampusMap() {
     handleEdgeHoverChange,
   } = useGraphHover(graph);
 
-  // Pathfinding: selection + final path
+  // Pathfinding: selection + final path + traversal
   const {
     handleVertexClickForRoute,
     startVertexId,
     endVertexId,
     pathVertexIds,
     pathEdgeIds,
+    activeTraverseVertexId,
+    activeTraverseEdgeId,
   } = usePathfinding(graph);
 
   // Camera + viewport handled by custom hook
@@ -99,6 +101,7 @@ function CampusMap() {
             hoveredEdgeId={hoveredEdgeId}
             onEdgeHoverChange={handleEdgeHoverChange}
             pathEdgeIds={pathEdgeIds}
+            activeTraverseEdgeId={activeTraverseEdgeId}
           />
 
           {/* Vertices on top */}
@@ -113,6 +116,7 @@ function CampusMap() {
             const isOnPath = pathVertexSet.has(vertex.id);
             const isRouteStart = startVertexId === vertex.id;
             const isRouteEnd = endVertexId === vertex.id;
+            const isTraversalActive = activeTraverseVertexId === vertex.id;
 
             return (
               <VertexNode
@@ -130,6 +134,7 @@ function CampusMap() {
                 isOnPath={isOnPath}
                 isRouteStart={isRouteStart}
                 isRouteEnd={isRouteEnd}
+                isTraversalActive={isTraversalActive}
               />
             );
           })}

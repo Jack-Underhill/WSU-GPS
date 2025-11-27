@@ -8,6 +8,7 @@ export default function EdgeLayer({
   hoveredEdgeId = null,
   onEdgeHoverChange,
   pathEdgeIds = [],
+  activeTraverseEdgeId = null,
 }) {
   const { vertices, edges } = graph;
   const highlightedSet = new Set(highlightedEdgeIds);
@@ -19,6 +20,7 @@ export default function EdgeLayer({
         const isHovered = hoveredEdgeId === e.id;
         const isOnPath = pathSet.has(e.id);
         const isHighlighted = highlightedSet.has(e.id) || isHovered;
+        const isTraverseActive = activeTraverseEdgeId === e.id;
 
         return (
           <EdgeLine
@@ -30,6 +32,7 @@ export default function EdgeLayer({
             isHighlighted={isHighlighted}
             isHovered={isHovered}
             isOnPath={isOnPath}
+            isTraverseActive={isTraverseActive}
             onHoverChange={(isHovering) =>
               onEdgeHoverChange && onEdgeHoverChange(e.id, isHovering)
             }

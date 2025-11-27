@@ -11,13 +11,16 @@ export function runDijkstra(graph, startId, targetId) {
 
   const vertexIds = Object.keys(graph.vertices);
   if (!vertexIds.includes(startId) || !vertexIds.includes(targetId)) {
-    throw new Error(`runDijkstra: start or target not in graph (${startId} -> ${targetId})`);
+    throw new Error(
+      `runDijkstra: start or target not in graph (${startId} -> ${targetId})`
+    );
   }
 
   const dist = {};
   const prev = {}; // vertexId -> { from, edgeId } | null
   const visited = new Set();
   const visitedOrder = [];
+  const steps = []; // detailed traversal steps
 
   for (const id of vertexIds) {
     dist[id] = Infinity;
@@ -45,6 +48,12 @@ export function runDijkstra(graph, startId, targetId) {
     visited.add(u);
     visitedOrder.push(u);
 
+    // Step: now "visiting" u
+    steps.push({
+      type: 'visit-vertex',
+      vertexId: u,
+    });
+
     if (u === targetId) {
       // Stop once finalized the target
       break;
@@ -54,8 +63,22 @@ export function runDijkstra(graph, startId, targetId) {
     for (const { to: v, weight, edgeId } of neighbors) {
       if (visited.has(v)) continue;
 
+      const prevDist = dist[v];
       const alt = dist[u] + weight;
-      if (alt < dist[v]) {
+      const improved = alt < prevDist;
+
+      // Step: considering edge (u -> v)
+      steps.push({
+        type: 'consider-edge',
+        from: u,
+        to: v,
+        edgeId,
+        prevDist,
+        newDist: alt,
+        improved,
+      });
+
+      if (improved) {
         dist[v] = alt;
         prev[v] = { from: u, edgeId };
       }
@@ -85,5 +108,6 @@ export function runDijkstra(graph, startId, targetId) {
     visitedOrder,
     pathVertices,
     pathEdges,
+    steps,
   };
 }

@@ -9,6 +9,7 @@ export default function EdgeLine({
   isHovered = false,
   onHoverChange,
   isOnPath = false,
+  isTraverseActive = false,
 }) {
   const u = vertices[edge.u];
   const v = vertices[edge.v];
@@ -18,13 +19,17 @@ export default function EdgeLine({
   const { x: x2, y: y2 } = worldToScreen(v.position, viewportSize, camera);
 
   // Decide stroke based on priority:
-  // 1. Path edge (route) -> amber
-  // 2. Hover/adjacency highlight -> bright blue
-  // 3. Default -> faint blue
+  // 1. Active traversal edge -> purple
+  // 2. Path edge (route)     -> amber
+  // 3. Hover/adjacency       -> bright blue
+  // 4. Default               -> faint blue
   let stroke;
   let strokeWidth;
 
-  if (isOnPath) {
+  if (isTraverseActive) {
+    stroke = 'rgba(139,92,246,0.95)'; // violet-500-ish
+    strokeWidth = 6;
+  } else if (isOnPath) {
     stroke = 'rgba(250,204,21,0.95)'; // amber-400-ish
     strokeWidth = 5;
   } else if (isHighlighted || isHovered) {

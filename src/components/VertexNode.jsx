@@ -10,6 +10,7 @@ export default function VertexNode({
   isOnPath = false,
   isRouteStart = false,
   isRouteEnd = false,
+  isTraversalActive = false,
 }) {
   const { id, name } = vertex;
   const { x, y } = screenPosition;
@@ -59,6 +60,11 @@ export default function VertexNode({
     colorClasses =
       'bg-rose-400 ring-2 ring-rose-300 ' +
       'hover:bg-rose-500 hover:ring-rose-400';
+  } else if (isTraversalActive) {
+    // Currently active vertex in Dijkstra traversal
+    colorClasses =
+      'bg-violet-400 ring-2 ring-violet-300 ' +
+      'hover:bg-violet-500 hover:ring-violet-400';
   } else if (isOnPath) {
     // Vertex along shortest path
     colorClasses =
