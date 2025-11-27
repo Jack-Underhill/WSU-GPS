@@ -5,22 +5,37 @@ import Navbar from "./components/Navbar";
 
 function App() {
   const [routeSummary, setRouteSummary] = useState({
-    startName: null,
-    endName: null,
+    startName: "",
+    endName: "",
     distance: null,
   });
 
-  // Stable callback for CampusMap
+  // Called by CampusMap when start/end or distance changes
   const handleRouteSelectionChange = useCallback(
     ({ startVertex, endVertex, distance }) => {
       setRouteSummary({
-        startName: startVertex ? startVertex.name : null,
-        endName: endVertex ? endVertex.name : null,
+        startName: startVertex ? startVertex.name : "",
+        endName: endVertex ? endVertex.name : "",
         distance: distance ?? null,
       });
     },
     []
   );
+
+  // Called when user types in the navbar inputs
+  const handleStartNameChange = (value) => {
+    setRouteSummary((prev) => ({
+      ...prev,
+      startName: value,
+    }));
+  };
+
+  const handleEndNameChange = (value) => {
+    setRouteSummary((prev) => ({
+      ...prev,
+      endName: value,
+    }));
+  };
 
   return (
     <div className="min-h-screen text-white">
@@ -28,6 +43,8 @@ function App() {
         startName={routeSummary.startName}
         endName={routeSummary.endName}
         distance={routeSummary.distance}
+        onStartNameChange={handleStartNameChange}
+        onEndNameChange={handleEndNameChange}
       />
 
       <main className="relative h-[calc(100vh-3rem)]">
