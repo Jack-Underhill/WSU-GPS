@@ -37,7 +37,7 @@ function RouteSearchInput({
                      md:text-xs"
         />
 
-        {/* Dropdown overlay shell – will be used in the next step */}
+        {/* Dropdown overlay */}
         {showDropdown && (
           <div
             className="absolute left-0 right-0 mt-1 rounded-md border
@@ -52,12 +52,22 @@ function RouteSearchInput({
                 return (
                   <li
                     key={key}
+                    tabIndex={0}            // <-- make it tabbable
+                    role="button"           // <-- announce as clickable
                     className="cursor-pointer px-3 py-1.5
-                               hover:bg-slate-800/80"
-                    // onMouseDown so click doesn't blur the input before handler runs
+                               hover:bg-slate-800/80
+                               focus:bg-slate-800/80"
+                    // Mouse select
                     onMouseDown={(e) => {
                       e.preventDefault();
                       onSuggestionSelect?.(item);
+                    }}
+                    // Keyboard select (Enter or Space)
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onSuggestionSelect?.(item);
+                      }
                     }}
                   >
                     {labelText}
