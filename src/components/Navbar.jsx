@@ -46,7 +46,7 @@ function Navbar({
         relative z-40 
         flex flex-wrap items-center 
         gap-x-6 gap-y-2
-        px-4 md:px-10 py-3
+        px-4 sm:px-10 lg:px-15 xl:px-20 2xl:px-30 py-3
         justify-between
         bg-slate-950/85 backdrop-blur
       "

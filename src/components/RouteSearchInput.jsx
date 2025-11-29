@@ -67,7 +67,7 @@ function RouteSearchInput({
             bg-slate-900/80
             focus:border-[#DEE8D0] focus:ring-2 focus:ring-[#DEE8D0]/60
             outline-none ring-0
-            text-center font-mono text-slate-50
+            text-left font-mono text-slate-50
             text-xs md:text-xs"
         />
 

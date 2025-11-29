@@ -57,17 +57,14 @@ export default function VertexNode({
       'bg-rose-400 ring-2 ring-rose-300 ' +
       'hover:bg-rose-500 hover:ring-rose-400';
   } else if (isTraversalActive) {
-    // Current vertex whose edges are being tested
     colorClasses =
       'bg-violet-400 ring-2 ring-violet-300 ' +
       'hover:bg-violet-500 hover:ring-violet-400';
   } else if (isOnPath) {
-    // Final shortest-path vertex
     colorClasses =
       'bg-amber-400 ring-2 ring-amber-300 ' +
       'hover:bg-amber-500 hover:ring-amber-400';
   } else if (isTraversalVisited) {
-    // Visited during traversal (but not the current or final-path node)
     colorClasses =
       'bg-violet-300/80 ring-2 ring-violet-200 ' +
       'hover:bg-violet-400 hover:ring-violet-300';
@@ -81,15 +78,15 @@ export default function VertexNode({
     <div
       className="absolute"
       style={{ left: x, top: y }}
-      onMouseDown={handleMouseDown}
-      onClick={handleClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       <div className="relative -translate-x-1/2 -translate-y-1/2">
         <div
           className={`${dotClassesBase} ${colorClasses}`}
           title={`${id} (${name})`}
+          onMouseDown={handleMouseDown}
+          onClick={handleClick}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         />
 
         {typeof degree === 'number' && (
