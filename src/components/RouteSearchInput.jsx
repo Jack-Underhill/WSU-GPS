@@ -1,3 +1,5 @@
+import { useState, useRef } from "react";
+
 function RouteSearchInput({
   label,
   value,
@@ -6,17 +8,46 @@ function RouteSearchInput({
   onCommit,
   suggestions = [],
   onSuggestionSelect,
+  inputRef,              // optional ref from parent (used for "To")
 }) {
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      onCommit?.();
+  const [isActive, setIsActive] = useState(false);
+
+  // Use parent ref if provided
+  const localInputRef = useRef(null);
+  const actualInputRef = inputRef || localInputRef;
+
+  // Group-level focus: active if focus is anywhere inside this component
+  const handleWrapperFocus = () => {
+    setIsActive(true);
+  };
+
+  const handleWrapperBlur = (event) => {
+    const next = event.relatedTarget;
+    // If next focus is not inside this wrapper, fully lost focus
+    if (!next || !event.currentTarget.contains(next)) {
+      setIsActive(false);
     }
   };
 
-  const showDropdown = suggestions.length > 0;
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      onCommit?.();
+      // Treat Enter as "done with this field" -> close dropdown
+      if (actualInputRef.current) {
+        actualInputRef.current.blur();
+      }
+    }
+  };
+
+  const showDropdown = isActive && suggestions.length > 0;
 
   return (
-    <div className="flex items-center gap-1">
+    <div
+      className="flex items-center gap-1"
+      onFocus={handleWrapperFocus}
+      onBlur={handleWrapperBlur}
+    >
       <span className="uppercase tracking-wide text-[#DEE8D0]">
         {label}
       </span>
@@ -24,6 +55,7 @@ function RouteSearchInput({
       <div className="relative">
         {/* Pill input */}
         <input
+          ref={actualInputRef}
           type="text"
           value={value}
           placeholder={placeholder}
@@ -52,21 +84,28 @@ function RouteSearchInput({
                 return (
                   <li 
                     key={key}
-                    tabIndex={0}            // <-- make it tabbable
-                    role="button"           // <-- announce as clickable
+                    tabIndex={0}
+                    role="button"
                     className="cursor-pointer px-3 py-1.5
                                hover:bg-[#DEE8D0]/30
-                               focus:bg-[#DEE8D0]/50" 
+                               focus:bg-[#DEE8D0]/50"
                     // Mouse select
                     onMouseDown={(e) => {
                       e.preventDefault();
                       onSuggestionSelect?.(item);
+                      // Close dropdown after selection
+                      if (actualInputRef.current) {
+                        actualInputRef.current.blur();
+                      }
                     }}
                     // Keyboard select (Enter or Space)
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
                         onSuggestionSelect?.(item);
+                        if (actualInputRef.current) {
+                          actualInputRef.current.blur();
+                        }
                       }
                     }}
                   >

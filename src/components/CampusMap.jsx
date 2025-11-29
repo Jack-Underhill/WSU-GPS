@@ -82,11 +82,11 @@ function CampusMap({
   useEffect(() => {
     if (!onRouteSuggestionsChange) return;
 
-    const startSuggestions = startSuggestionsEnabled && startInputValue
+    const startSuggestions = startInputValue
       ? suggestVertices(graph, startInputValue)
       : [];
 
-    const endSuggestions = endSuggestionsEnabled && endInputValue
+    const endSuggestions = endInputValue
       ? suggestVertices(graph, endInputValue)
       : [];
 
@@ -96,8 +96,6 @@ function CampusMap({
     endInputValue, 
     graph, 
     onRouteSuggestionsChange,
-    startSuggestionsEnabled,
-    endSuggestionsEnabled,
   ]);
 
   // Search: when navbar commits a query, try to match a vertex by name/id

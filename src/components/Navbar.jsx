@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import NavbarLink from "./NavbarLink";
 import RouteSearchInput from "./RouteSearchInput";
 
@@ -22,6 +23,23 @@ function Navbar({
   onStartSuggestionSelect,
   onEndSuggestionSelect,
 }) {
+  // Ref to the "To" input to auto-focus it from the "From" field
+  const toInputRef = useRef(null);
+
+  const handleFromCommit = () => {
+    onStartNameCommit?.();
+    if (toInputRef.current) {
+      toInputRef.current.focus();
+    }
+  };
+
+  const handleFromSuggestionSelect = (vertex) => {
+    onStartSuggestionSelect?.(vertex);
+    if (toInputRef.current) {
+      toInputRef.current.focus();
+    }
+  };
+
   return (
     <header className="relative z-40 flex h-16 items-center justify-between px-10 backdrop-blur bg-slate-950/85">
       {/* Left side: title/status */}
@@ -36,9 +54,9 @@ function Navbar({
           value={startName}
           placeholder="Select start"
           onChange={onStartNameChange}
-          onCommit={onStartNameCommit}
+          onCommit={handleFromCommit}
           suggestions={startSuggestions}
-          onSuggestionSelect={onStartSuggestionSelect}
+          onSuggestionSelect={handleFromSuggestionSelect}
         />
 
         <RouteSearchInput
@@ -49,6 +67,7 @@ function Navbar({
           onCommit={onEndNameCommit}
           suggestions={endSuggestions}
           onSuggestionSelect={onEndSuggestionSelect}
+          inputRef={toInputRef}
         />
 
         {/* Distance (read-only) */}
@@ -65,7 +84,7 @@ function Navbar({
       </div>
 
       {/* Right side: icon links */}
-      <nav className="flex items-center gap-3" aria-label="Project links">
+      <nav className="flex items-center gap-3 bg-slate-950" aria-label="Project links">
         {links.map((link) => (
           <NavbarLink key={link.label} {...link} />
         ))}

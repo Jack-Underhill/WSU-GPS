@@ -10,11 +10,6 @@ function App() {
     distance: null,
   });
 
-  const [suggestionsEnabled, setSuggestionsEnabled] = useState({
-    start: true,
-    end: true,
-  });
-
   // queries coming from navbar when user hits Enter
   const [startSearchQuery, setStartSearchQuery] = useState(null);
   const [endSearchQuery, setEndSearchQuery] = useState(null);
@@ -50,7 +45,6 @@ function App() {
 
   // Called when user types in the navbar inputs
   const handleStartNameChange = (value) => {
-    setSuggestionsEnabled((prev) => ({ ...prev, start: true }));  // typing re-enables
     setRouteSummary((prev) => ({
       ...prev,
       startName: value,
@@ -58,7 +52,6 @@ function App() {
   };
 
   const handleEndNameChange = (value) => {
-    setSuggestionsEnabled((prev) => ({ ...prev, end: true }));    // typing re-enables
     setRouteSummary((prev) => ({
       ...prev,
       endName: value,
@@ -68,56 +61,28 @@ function App() {
   // called when user presses Enter in the start input
   const handleStartNameCommit = () => {
     const q = routeSummary.startName.trim();
-
-    // trigger commit search
     setStartSearchQuery(q || null);
-
-    // clear current suggestions & disable until next keystroke
-    setRouteSuggestions((prev) => ({
-      ...prev,
-      start: [],
-    }));
-    setSuggestionsEnabled((prev) => ({
-      ...prev,
-      start: false,
-    }));
   };
 
   // called when user presses Enter in the end input
   const handleEndNameCommit = () => {
     const q = routeSummary.endName.trim();
-
     setEndSearchQuery(q || null);
-
-    setRouteSuggestions((prev) => ({
-      ...prev,
-      end: [],
-    }));
-    setSuggestionsEnabled((prev) => ({
-      ...prev,
-      end: false,
-    }));
   };
 
-  // user clicks a suggestion in the "From" dropdown
+  // user clicks / selects a suggestion in the "From" dropdown
   const handleStartSuggestionSelect = (vertex) => {
     const name = vertex.name || vertex.id;
 
-    // fill pill text
     setRouteSummary((prev) => ({
       ...prev,
       startName: name,
     }));
 
-    // trigger a commit search for that vertex
     setStartSearchQuery(name || null);
-
-    // clear current suggestions & disable until next keystroke
-    setRouteSuggestions((prev) => ({ ...prev, start: [] }));
-    setSuggestionsEnabled((prev) => ({ ...prev, start: false }));
   };
 
-  // user clicks a suggestion in the "To" dropdown
+  // user clicks / selects a suggestion in the "To" dropdown
   const handleEndSuggestionSelect = (vertex) => {
     const name = vertex.name || vertex.id;
 
@@ -127,13 +92,10 @@ function App() {
     }));
 
     setEndSearchQuery(name || null);
-
-    setRouteSuggestions((prev) => ({ ...prev, end: [] }));
-    setSuggestionsEnabled((prev) => ({ ...prev, end: false }));
   };
 
   return (
-    <div className="min-h-screen text-white bg-[#DEE8D0]">
+    <div className="w-full text-white bg-[#DEE8D0]">
       <Navbar
         startName={routeSummary.startName}
         endName={routeSummary.endName}
@@ -157,8 +119,6 @@ function App() {
           endSearchQuery={endSearchQuery}       // on Enter (commit)
           startInputValue={routeSummary.startName}  // live typing
           endInputValue={routeSummary.endName}      // live typing
-          startSuggestionsEnabled={suggestionsEnabled.start}
-          endSuggestionsEnabled={suggestionsEnabled.end}
         />
       </main>
     </div>
