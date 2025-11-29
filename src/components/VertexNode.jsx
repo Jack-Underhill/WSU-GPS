@@ -40,7 +40,7 @@ export default function VertexNode({
   };
 
   let dotClassesBase =
-    'w-4 h-4 z-10 rounded-full cursor-pointer transition ' +
+    'w-2.5 h-2.5 sm:w-4 sm:h-4 z-10 rounded-full cursor-pointer transition ' +
     'hover:scale-125 hover:ring-2';
 
   let colorClasses;
