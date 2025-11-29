@@ -68,13 +68,35 @@ function App() {
   // called when user presses Enter in the start input
   const handleStartNameCommit = () => {
     const q = routeSummary.startName.trim();
+
+    // trigger commit search
     setStartSearchQuery(q || null);
+
+    // clear current suggestions & disable until next keystroke
+    setRouteSuggestions((prev) => ({
+      ...prev,
+      start: [],
+    }));
+    setSuggestionsEnabled((prev) => ({
+      ...prev,
+      start: false,
+    }));
   };
 
   // called when user presses Enter in the end input
   const handleEndNameCommit = () => {
     const q = routeSummary.endName.trim();
+
     setEndSearchQuery(q || null);
+
+    setRouteSuggestions((prev) => ({
+      ...prev,
+      end: [],
+    }));
+    setSuggestionsEnabled((prev) => ({
+      ...prev,
+      end: false,
+    }));
   };
 
   // user clicks a suggestion in the "From" dropdown
