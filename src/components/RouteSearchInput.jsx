@@ -61,12 +61,14 @@ function RouteSearchInput({
           placeholder={placeholder}
           onChange={(e) => onChange?.(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="w-25 rounded-full border border-slate-700
-                     bg-slate-900/80 px-3 py-1
-                     font-mono text-[11px] text-slate-50
-                     outline-none ring-0
-                     focus:border-[#DEE8D0] focus:ring-2 focus:ring-[#DEE8D0]/60
-                     md:text-xs"
+          className="
+            w-25 md:w-30 px-3 py-1
+            rounded-full border border-slate-700
+            bg-slate-900/80
+            focus:border-[#DEE8D0] focus:ring-2 focus:ring-[#DEE8D0]/60
+            outline-none ring-0
+            text-center font-mono text-slate-50
+            text-xs md:text-xs"
         />
 
         {/* Dropdown overlay */}
@@ -76,7 +78,7 @@ function RouteSearchInput({
                        border-slate-700 bg-slate-950/95
                        shadow-lg shadow-black/40 z-1000"
           >
-            <ul className="max-h-48 overflow-y-auto text-[11px] md:text-xs">
+            <ul className="max-h-48 overflow-y-auto text-xs md:text-xs">
               {suggestions.map((item) => {
                 const key = item.id ?? item.value ?? item.label;
                 const labelText = item.label ?? item.name ?? item.id;

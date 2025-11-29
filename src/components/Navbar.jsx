@@ -41,14 +41,31 @@ function Navbar({
   };
 
   return (
-    <header className="relative z-40 flex h-16 items-center justify-between px-10 backdrop-blur bg-slate-950/85">
+    <header 
+      className="
+        relative z-40 
+        flex flex-wrap items-center 
+        gap-x-6 gap-y-2
+        px-4 md:px-10 py-3
+        justify-between
+        bg-slate-950/85 backdrop-blur
+      "
+    >
       {/* Left side: title/status */}
-      <div className="flex items-baseline gap-2">
-        <h1 className="text-base font-semibold md:text-lg text-slate-50">Campus GPS</h1>
+      <div className="flex order-1 items-baseline gap-2 flex-none">
+        <h1 className="text-lg font-semibold md:text-xl text-slate-50">Campus GPS</h1>
       </div>
 
       {/* Middle: route summary + inputs */}
-      <div className="flex items-center px-3 gap-3 text-xs md:text-sm">
+      <div 
+        className="
+          flex flex-wrap items-center gap-3
+          text-xs md:text-sm
+          order-3 md:order-2
+          basis-full md:basis-auto
+          md:flex-1 justify-center
+        "
+      >
         <RouteSearchInput
           label="From"
           value={startName}
@@ -76,7 +93,7 @@ function Navbar({
             <span className="uppercase tracking-wide text-[#DEE8D0]">
               Distance
             </span>
-            <span className="w-10 py-0.5 font-mono text-[11px] text-slate-50 md:text-xs">
+            <span className="w-fit py-0.5 font-mono text-xs text-slate-50 md:text-xs">
               {distance}
             </span>
           </div>
@@ -84,7 +101,7 @@ function Navbar({
       </div>
 
       {/* Right side: icon links */}
-      <nav className="flex items-center gap-3 bg-slate-950" aria-label="Project links">
+      <nav className="flex order-2 md:order-3 items-center gap-3 flex-none" aria-label="Project links">
         {links.map((link) => (
           <NavbarLink key={link.label} {...link} />
         ))}
