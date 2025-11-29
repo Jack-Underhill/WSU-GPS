@@ -22,8 +22,6 @@ function CampusMap({
   startInputValue,
   endInputValue,
   onRouteSuggestionsChange, 
-  startSuggestionsEnabled,
-  endSuggestionsEnabled,
 }) {
   const graph = useMemo(() => createCampusGraph(), []);
 
@@ -149,6 +147,22 @@ function CampusMap({
     onMapClickWorld:    handleMapClickWorld,
   });
 
+  const handleWheel = (event) => {
+    // When the pointer is over the map, use wheel as zoom,
+    // not page scroll / browser zoom.
+    event.preventDefault();
+
+    const { deltaY } = event;
+
+    if (deltaY < 0) {
+      // Scroll up / pinch-out -> zoom in
+      handleZoomIn && handleZoomIn();
+    } else if (deltaY > 0) {
+      // Scroll down / pinch-in -> zoom out
+      handleZoomOut && handleZoomOut();
+    }
+  };
+
   // Decide what a vertex click *means*:
   // - In edit mode: create edges (dev editor).
   // - In normal mode: select start/end for route.
@@ -177,6 +191,7 @@ function CampusMap({
             isPanning ? 'cursor-grabbing' : 'cursor-grab'
           }`}
           onMouseDown={handleMouseDown}
+          onWheel={handleWheel}
         >
           {/* Edges first so they render under the nodes */}
           <EdgeLayer
