@@ -162,7 +162,7 @@ function CampusMap({
   const traversalVisitedSet = new Set(traversalVisitedVertexIds);
 
   return (
-    <div className="flex justify-center items-center bg-slate-900">
+    <div className="flex justify-center items-center">
       <div ref={containerRef} className="relative inline-block overflow-hidden">
         {/* Background map (camera-aware via CSS transform) */}
         <img

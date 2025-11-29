@@ -8,7 +8,7 @@ function NavbarLink({ label, href, icon }) {
       className="flex h-9 w-9 items-center justify-center rounded-full
                  bg-slate-900/0 p-1 transition
                  hover:scale-105
-                 hover:ring-2 hover:ring-emerald-400/70"
+                 hover:ring-2 hover:ring-[#DEE8D0]/70"
     >
       <img
         src={icon}

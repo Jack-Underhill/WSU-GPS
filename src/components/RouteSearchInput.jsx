@@ -17,7 +17,7 @@ function RouteSearchInput({
 
   return (
     <div className="flex items-center gap-1">
-      <span className="uppercase tracking-wide text-slate-400">
+      <span className="uppercase tracking-wide text-[#DEE8D0]">
         {label}
       </span>
 
@@ -31,9 +31,9 @@ function RouteSearchInput({
           onKeyDown={handleKeyDown}
           className="w-25 rounded-full border border-slate-700
                      bg-slate-900/80 px-3 py-1
-                     font-mono text-[11px] text-slate-100
+                     font-mono text-[11px] text-slate-50
                      outline-none ring-0
-                     focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/60
+                     focus:border-[#DEE8D0] focus:ring-2 focus:ring-[#DEE8D0]/60
                      md:text-xs"
         />
 
@@ -50,13 +50,13 @@ function RouteSearchInput({
                 const labelText = item.label ?? item.name ?? item.id;
 
                 return (
-                  <li
+                  <li 
                     key={key}
                     tabIndex={0}            // <-- make it tabbable
                     role="button"           // <-- announce as clickable
                     className="cursor-pointer px-3 py-1.5
-                               hover:bg-slate-800/80
-                               focus:bg-slate-800/80"
+                               hover:bg-[#DEE8D0]/30
+                               focus:bg-[#DEE8D0]/50" 
                     // Mouse select
                     onMouseDown={(e) => {
                       e.preventDefault();

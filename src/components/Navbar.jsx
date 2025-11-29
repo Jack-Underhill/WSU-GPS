@@ -23,13 +23,10 @@ function Navbar({
   onEndSuggestionSelect,
 }) {
   return (
-    <header className="relative z-40 flex h-12 items-center justify-between bg-slate-950/80 px-10 backdrop-blur">
+    <header className="relative z-40 flex h-16 items-center justify-between px-10 backdrop-blur bg-slate-950/85">
       {/* Left side: title/status */}
       <div className="flex items-baseline gap-2">
-        <h1 className="text-base font-semibold md:text-lg">Campus GPS</h1>
-        <span className="hidden text-xs font-semibold text-slate-400 sm:inline md:text-sm">
-          In progress...
-        </span>
+        <h1 className="text-base font-semibold md:text-lg text-slate-50">Campus GPS</h1>
       </div>
 
       {/* Middle: route summary + inputs */}
@@ -56,11 +53,11 @@ function Navbar({
 
         {/* Distance (read-only) */}
         {distance != null && (
-          <div className="flex items-center gap-1">
-            <span className="uppercase tracking-wide text-slate-400">
+          <div className="flex items-center gap-1.5">
+            <span className="uppercase tracking-wide text-[#DEE8D0]">
               Distance
             </span>
-            <span className="w-10 rounded border border-slate-700 bg-slate-900/80 py-0.5 font-mono text-[11px] text-slate-100 md:text-xs">
+            <span className="w-10 py-0.5 font-mono text-[11px] text-slate-50 md:text-xs">
               {distance}
             </span>
           </div>

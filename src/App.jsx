@@ -133,7 +133,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen text-white">
+    <div className="min-h-screen text-white bg-[#DEE8D0]">
       <Navbar
         startName={routeSummary.startName}
         endName={routeSummary.endName}
@@ -149,7 +149,7 @@ function App() {
         onEndSuggestionSelect={handleEndSuggestionSelect}
       />
 
-      <main className="relative z-0 h-[calc(100vh-3rem)]">
+      <main className="relative z-0">
         <CampusMap
           onRouteSelectionChange={handleRouteSelectionChange}
           onRouteSuggestionsChange={handleRouteSuggestionsChange}
