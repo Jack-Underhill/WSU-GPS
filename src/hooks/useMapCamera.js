@@ -35,6 +35,11 @@ export function useMapCamera({
   const lastMousePosRef = useRef({ x: 0, y: 0 });
   const movedRef        = useRef(false);
 
+  // Touch / mobile gesture state
+  const lastTouchPosRef       = useRef({ x: 0, y: 0 });
+  const pinchStartDistanceRef = useRef(null);
+  const pinchStartZoomRef     = useRef(1);
+
   // Measure container size
   useEffect(() => {
     const el = containerRef.current;
@@ -165,6 +170,152 @@ export function useMapCamera({
     window.addEventListener('mouseup',   handleWindowMouseUp);
   };
 
+  // --- Touch / mobile gestures ------------------------------------
+  const handleTouchStart = (e) => {
+    if (!containerRef.current) return;
+
+    // handle both 1-finger pan and 2-finger pinch
+    if (e.touches.length === 1 || e.touches.length === 2) {
+      e.preventDefault();
+    }
+
+    if (e.touches.length === 1) {
+      // Start panning
+      const t = e.touches[0];
+      lastTouchPosRef.current = { x: t.clientX, y: t.clientY };
+      pinchStartDistanceRef.current = null;
+      pinchStartZoomRef.current = zoom;
+
+      movedRef.current = false;
+      setIsPanning(true);
+    } else if (e.touches.length === 2) {
+      // Start pinch
+      const [t1, t2] = e.touches;
+      const dx = t2.clientX - t1.clientX;
+      const dy = t2.clientY - t1.clientY;
+      const dist = Math.hypot(dx, dy) || 0.0001;
+
+      pinchStartDistanceRef.current = dist;
+      pinchStartZoomRef.current     = zoom;
+
+      setIsPanning(false);
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (!containerRef.current) return;
+
+    // 1 finger => pan
+    if (e.touches.length === 1 && !pinchStartDistanceRef.current) {
+      const t = e.touches[0];
+      const prev = lastTouchPosRef.current;
+      const dx = t.clientX - prev.x;
+      const dy = t.clientY - prev.y;
+
+      if (dx === 0 && dy === 0) return;
+
+      e.preventDefault();
+
+      lastTouchPosRef.current = { x: t.clientX, y: t.clientY };
+
+      if (!movedRef.current && (Math.abs(dx) > 2 || Math.abs(dy) > 2)) {
+        movedRef.current = true;
+      }
+
+      // Pan using current zoom + viewport
+      setCenter((prevCenter) => {
+        if (!viewportSize.width || !viewportSize.height) {
+          return prevCenter;
+        }
+
+        const viewWidth  = mapWidth  / zoom;
+        const viewHeight = mapHeight / zoom;
+
+        const worldPerPixelX = viewWidth  / viewportSize.width;
+        const worldPerPixelY = viewHeight / viewportSize.height;
+
+        let newX = prevCenter.x - dx * worldPerPixelX;
+        let newY = prevCenter.y - dy * worldPerPixelY;
+
+        const minX = viewWidth / 2;
+        const maxX = mapWidth - viewWidth / 2;
+        const minY = viewHeight / 2;
+        const maxY = mapHeight - viewHeight / 2;
+
+        newX = clamp(newX, minX, maxX);
+        newY = clamp(newY, minY, maxY);
+
+        return { x: newX, y: newY };
+      });
+    }
+    // 2 fingers => pinch zoom
+    else if (e.touches.length === 2) {
+      const [t1, t2] = e.touches;
+      const dx = t2.clientX - t1.clientX;
+      const dy = t2.clientY - t1.clientY;
+      const distance = Math.hypot(dx, dy) || 0.0001;
+
+      const startDistance = pinchStartDistanceRef.current;
+      if (!startDistance) {
+        pinchStartDistanceRef.current = distance;
+        return;
+      }
+
+      e.preventDefault();
+
+      const scale    = distance / startDistance;
+      const baseZoom = pinchStartZoomRef.current || zoom;
+
+      setZoom(() =>
+        clamp(baseZoom * scale, MIN_ZOOM, MAX_ZOOM)
+      );
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (!containerRef.current) return;
+
+    // Gesture finished
+    if (e.touches.length === 0) {
+      setIsPanning(false);
+
+      // Treat as "tap" -> world click if didn't drag
+      if (
+        enableClickToWorld &&
+        !movedRef.current &&
+        typeof onMapClickWorld === 'function'
+      ) {
+        const rect  = containerRef.current.getBoundingClientRect();
+        const touch = e.changedTouches[0];
+
+        if (touch) {
+          const screenX = touch.clientX - rect.left;
+          const screenY = touch.clientY - rect.top;
+
+          const worldPos = screenToWorld(
+            { x: screenX, y: screenY },
+            viewportSize,
+            camera
+          );
+
+          onMapClickWorld(worldPos);
+        }
+      }
+
+      pinchStartDistanceRef.current = null;
+    }
+    // Went from 2 fingers to 1 finger -> start panning from remaining finger
+    else if (e.touches.length === 1) {
+      const t = e.touches[0];
+      lastTouchPosRef.current = { x: t.clientX, y: t.clientY };
+      pinchStartDistanceRef.current = null;
+      pinchStartZoomRef.current     = zoom;
+      movedRef.current              = false;
+      setIsPanning(true);
+    }
+  };
+
+
   // Map image transform style
   const mapStyle = useMemo(() => {
     if (!viewportSize.width || !viewportSize.height) return {};
@@ -191,6 +342,9 @@ export function useMapCamera({
     mapStyle,
     isPanning,
     handleMouseDown,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
     handleZoomIn,
     handleZoomOut,
   };

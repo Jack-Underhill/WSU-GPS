@@ -138,6 +138,9 @@ function CampusMap({
     mapStyle,
     isPanning,
     handleMouseDown,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
     handleZoomIn,
     handleZoomOut,
   } = useMapCamera({
@@ -148,18 +151,24 @@ function CampusMap({
   });
 
   const handleWheel = (event) => {
-    // When the pointer is over the map, use wheel as zoom,
-    // not page scroll / browser zoom.
+    // If this is a browser "zoom" gesture (e.g. ctrl + wheel / pinch),
+    // let the browser handle it and DON'T zoom the map as well.
+    if (event.ctrlKey) {
+      return;
+    }
+
+    // For normal mouse wheel / two-finger scroll over the map,
+    // use it to zoom the map instead of scrolling the page.
     event.preventDefault();
 
     const { deltaY } = event;
 
     if (deltaY < 0) {
-      // Scroll up / pinch-out -> zoom in
-      handleZoomIn && handleZoomIn();
+      // Scroll up -> zoom in
+      handleZoomIn?.();
     } else if (deltaY > 0) {
-      // Scroll down / pinch-in -> zoom out
-      handleZoomOut && handleZoomOut();
+      // Scroll down -> zoom out
+      handleZoomOut?.();
     }
   };
 
@@ -187,10 +196,13 @@ function CampusMap({
 
         {/* Graph overlays + controls */}
         <div
-          className={`absolute inset-0 ${
+          className={`absolute inset-0 touch-none ${
             isPanning ? 'cursor-grabbing' : 'cursor-grab'
           }`}
           onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
           onWheel={handleWheel}
         >
           {/* Edges first so they render under the nodes */}
