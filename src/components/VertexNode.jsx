@@ -82,7 +82,7 @@ export default function VertexNode({
       <div className="relative -translate-x-1/2 -translate-y-1/2">
         <div
           className={`${dotClassesBase} ${colorClasses}`}
-          title={`${id} (${name})`}
+          title={name}
           onMouseDown={handleMouseDown}
           onClick={handleClick}
           onMouseEnter={handleMouseEnter}

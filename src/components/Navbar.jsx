@@ -89,11 +89,11 @@ function Navbar({
 
         {/* Distance (read-only) */}
         {distance != null && (
-          <div className="flex items-center gap-1.5">
-            <span className="uppercase tracking-wide text-[#DEE8D0]">
+          <div className="flex items-baseline gap-1.5">
+            <span className="uppercase tracking-wide text-[#DEE8D0] leading-none">
               Distance
             </span>
-            <span className="w-fit py-0.5 font-mono text-xs text-slate-50 md:text-xs">
+            <span className="p-0.5 font-mono text-xs text-slate-50 leading-none md:text-xs">
               {distance}
             </span>
           </div>
