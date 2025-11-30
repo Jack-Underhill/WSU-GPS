@@ -1,5 +1,5 @@
 import { useMemo, useEffect } from 'react';
-import mapImg from '../assets/map.png';
+import mapImg from '../assets/map_full.png';
 import { createCampusGraph, MAP_WIDTH, MAP_HEIGHT } from '../helper/campusGraph.js';
 import { worldToScreen } from '../helper/coordinates.js';
 import VertexNode from './VertexNode.jsx';
