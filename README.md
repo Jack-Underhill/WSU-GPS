@@ -1,4 +1,4 @@
-# WSU Campus GPS
+# WSU Campus Graph GPS
 
 WSU Campus Graph GPS is an interactive campus map for the WSU Pullman campus.  
 It lets you pick two locations on the map, runs a shortest-path search between them, and visualizes how the algorithm explores the graph before showing the final route and total distance.
