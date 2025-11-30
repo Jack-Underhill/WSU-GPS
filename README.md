@@ -26,7 +26,7 @@ The top navbar holds the “From / To / Distance” UI, while the main content i
 - **Commit on Enter / click:** Hitting Enter, or choosing a suggestion, commits that vertex as the start or end of the route. The app then runs pathfinding for any committed pair.  
 - **Distance readout:** Once a valid route is found, the total distance (sum of edge weights on the path) is shown in the navbar next to “Distance.”
 
-You can also skip typing entirely and just click directly on nodes in the map to choose start and end vertices.
+You can also skip typing entirely and just click directly on nodes in the map to choose start (green) and end (red) vertices.
 
 ### Map interaction
 
@@ -39,9 +39,11 @@ The camera system tracks a logical center and zoom value and converts that into 
 ### Graph visualization
 
 - **Vertices:** Each vertex knows its id, display name, and position `(x, y)` in world coordinates.
-- **Edges:** Edges connect two vertex ids (`u`, `v`) and have a numeric `weight` (distance). Most edges are treated as undirected.  
-- **Hover highlights:** Hovering a vertex highlights all incident edges and can expose things like vertex degree.   
-- **Path overlay:** When a route is found, vertices and edges along the shortest path are highlighted on top of the map.  
+- **Degree labels:** Every vertex renders a small badge next to it showing its **degree** (how many edges are incident to that vertex).
+- **Edges:** Connect two vertex ids (`u`, `v`) and have a numeric `weight` (distance). All edges are treated as undirected.  
+- **Edge weight on hover:** When you hover an edge, a small pill-shaped label appears at the midpoint showing that edge’s **weight**.
+- **Hover highlights:** Hovering a vertex highlights all incident edges and ties into the degree display, making local structure easy to see.
+- **Path overlay:** When a route is found, vertices and edges along the shortest path are highlighted on top of the map.
 
 ---
 
