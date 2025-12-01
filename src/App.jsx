@@ -95,7 +95,7 @@ function App() {
   };
 
   return (
-    <div className="w-full text-white bg-[#DEE8D0]">
+    <div className="flex flex-col w-screen h-screen text-white bg-[#DEE8D0] overflow-hidden">
       <Navbar
         startName={routeSummary.startName}
         endName={routeSummary.endName}
@@ -111,7 +111,7 @@ function App() {
         onEndSuggestionSelect={handleEndSuggestionSelect}
       />
 
-      <main className="relative z-0">
+      <main className="relative z-0 flex-1 min-h-0 overflow-hidden">
         <CampusMap
           onRouteSelectionChange={handleRouteSelectionChange}
           onRouteSuggestionsChange={handleRouteSuggestionsChange}

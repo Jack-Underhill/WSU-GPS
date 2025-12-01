@@ -183,13 +183,17 @@ function CampusMap({
   const traversalVisitedSet = new Set(traversalVisitedVertexIds);
 
   return (
-    <div className="flex justify-center items-center">
-      <div ref={containerRef} className="relative inline-block overflow-hidden">
+    <div className="flex h-full w-full justify-center items-start">
+      <div 
+        ref={containerRef} 
+        className="relative max-h-full max-w-full overflow-hidden"
+        style={{ aspectRatio: `${MAP_WIDTH}/${MAP_HEIGHT}` }}
+      >
         {/* Background map (camera-aware via CSS transform) */}
         <img
           src={mapImg}
           alt="WSU Pullman Campus Map"
-          className="block max-w-full h-auto select-none"
+          className="block h-full w-full select-none"
           style={mapStyle}
           draggable={false}
         />
