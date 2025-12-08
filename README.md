@@ -3,9 +3,11 @@
 WSU Campus Graph GPS is an interactive campus map for the WSU Pullman campus.  
 It lets you pick two locations on the map, runs a shortest-path search between them, and visualizes how the algorithm explores the graph before showing the final route and total distance.
 
-## Demo Video
+## Course Deliverables
 
-▶️ [WSU Campus GPS | Graph Theory Final Project Demo (Dijkstra’s Algorithm)](https://youtu.be/B2fOKqGwaTA)
+📝 [Final Narrative Writeup (PDF)](public/Math453_FinalProject_Underhill.pdf)
+ 
+▶️ [Video Demo (YouTube)](https://youtu.be/B2fOKqGwaTA)
 
 ---
 
